@@ -1,0 +1,43 @@
+<h1 id="appTitle">Text Connector</h1>
+
+<form class="needs-validation" novalidate>
+
+  <div class="mb-3">
+    <label for="recipient-name" class="col-form-label">Name*:</label>
+    <input type="text" class="form-control" id="conn-name" aria-describedby="inputGroupPrepend3 validationNameFeedback">
+    <div class="invalid-feedback" id="validationNameFeedback">
+      Enter a valid Name.
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="message-text" class="col-form-label">Description*:</label>
+    <input type="text" class="form-control" id="conn-description" aria-describedby="inputGroupPrepend3 validationDescriptionFeedback">
+    <div id="validationDescriptionFeedback" class="invalid-feedback">
+      Please enter a Description.
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="message-text" class="col-form-label">Filename*:</label>
+    <input type="text" class="form-control" id="conn-filename" aria-describedby="inputGroupPrepend3 validationFilenameFeedback">
+    <div id="validationFilenameFeedback" class="invalid-feedback">
+      Please enter a Filename.
+    </div>
+
+  </div>
+
+  <div class="btn-group mb-3" role="group" aria-label="navigation">
+    <button type="button" class="btn btn-primary" id="btnCancel">Cancel</button>
+    <button type="submit" class="btn btn-primary" id="btnConfirm">Confirm</button>
+  </div>
+</form>
+
+<div class="toast-container" style="position: absolute; top: 55px; right: 10px;">
+</div>
+
+
+
+
+
+<script src="textConnEdtPage.js"></script>
+
+

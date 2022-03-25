@@ -24,65 +24,6 @@
 </table>
 
 
-<!-- Modal data-bs-keyboard="false" -->
-<div class="modal fade" id="jdbcConnMdl" data-bs-backdrop="static" tabindex="-1" aria-labelledby="jdbcConnMdlLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="jdbcConnMdlLabel">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form >
-
-          <input type="hidden" class="form-control" id="conn-id">
-          <input type="hidden" class="form-control" id="edit-mode">
-
-          <div class="mb-3">
-            <label for="conn-name" class="col-form-label">Name:</label>
-            <input type="text" class="form-control" id="conn-name">
-          </div>
-          <div class="mb-3">
-            <label for="conn-descr" class="col-form-label">Description:</label>
-            <input type="text" class="form-control" id="conn-descr"></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="conn-driver" class="col-form-label">Driver:</label>
-            <input type="text" class="form-control" id="conn-driver"></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="conn-url" class="col-form-label">Url:</label>
-            <input type="text" class="form-control" id="conn-url"></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="conn-user" class="col-form-label">User:</label>
-            <input type="text" class="form-control" id="conn-user"></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label for="conn-pwd" class="col-form-label" >Password:</label>
-            <input type="password" class="form-control" id="conn-pwd" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
-          </div>
-
-          <div class="mb-3">
-            <label for="conn-pwd2" class="col-form-label" autocomplete="off">Confirm Password:</label>
-            <input type="password" class="form-control" id="conn-pwd2" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
-          </div>
-
-
-
-
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="confirmBtn">Confirm</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script src="jdbcConnPage.js"></script>
 

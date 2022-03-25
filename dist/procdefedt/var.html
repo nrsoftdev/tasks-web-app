@@ -1,0 +1,57 @@
+<h1 id="appTitle">Process Definition - Variables</h1>
+
+Name: <span id="proc-name"></span><br>
+Description: <span id="proc-descr"></span><br>
+
+<form>
+<div class="input-group mb-3">
+  <span class="input-group-text" >Var name</span>
+  <input type="text" class="form-control" id="var-name" placeholder="Varname" aria-label="varname">
+</div>
+
+<div class="input-group mb-3">
+  <label class="input-group-text" for="var-type">Type</label>
+  <select class="form-select" id="var-type">
+    <option selected>Choose...</option>
+    <option value="date">Date</option>
+    <option value="number">Number</option>
+    <option value="string">String</option>
+  </select>
+</div>
+
+<div class="input-group mb-3">
+  <span class="input-group-text" >Default</span>
+  <input type="text" id="var-default" class="form-control" placeholder="Default" aria-label="vardefault">
+</div>
+
+</form>
+
+<button id="btnAddVar" class="btn btn-primary">Add</button>
+
+<table class="table" id="procdefvars">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Type</th>
+      <th scope="col">Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!--
+    <tr>
+      <th scope="row">1</th>
+      <td>Mark</td>
+      <td>Otto</td>
+      <td>@mdo</td>
+    </tr>
+-->
+  </tbody>
+</table>
+
+<div class="btn-group" role="group" aria-label="navigation">
+  <button type="button" class="btn btn-primary" id="btnPrev">Prev</button>
+  <button type="button" class="btn btn-primary" id="btnConfirm">Confirm</button>
+</div>
+
+<script src="procDefEdtVarPage.js"></script>

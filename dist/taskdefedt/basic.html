@@ -1,0 +1,47 @@
+<form novalidate>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Class Name</span>
+      <input type="text" class="form-control" id="task-className" readonly>
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Name</span>
+      <input type="text" class="form-control" id="task-name" required>
+      <div class="invalid-feedback">
+        Please enter a name.
+      </div>
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text" title="Task description">Description</span>
+      <input type="text" class="form-control" id="task-description"  required>
+      <div class="invalid-feedback">
+        Please enter a description.
+      </div>
+    </div>
+    
+    <div class="input-group mb-3 select-conn" id="select-text-conn-group" style="display: none">
+      <span class="input-group-text" title="Text Connector">Connector</span>
+      <select class="form-select" id="select-text-conn">
+        <option selected>Select a Connector</option>
+      </select>
+    </div>
+
+    <div class="input-group mb-3 select-conn" id="select-jdbc-conn-group" style="display: none">
+      <span class="input-group-text" title="JDBC Connector">Connector</span>
+      <select class="form-select" id="select-jdbc-conn">
+        <option selected>Select a Connector</option>
+      </select>
+    </div>
+   
+  </form>
+
+  <div class="btn-group" role="group" aria-label="navigation">
+    <button type="button" class="btn btn-secondary" id="btnPrevious">Cancel</button>
+    <button type="button" class="btn btn-primary" id="btnNext">Next</button>
+</div>
+
+
+
+  <script src="taskDefEdtPage.js"></script>

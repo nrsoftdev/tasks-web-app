@@ -1,0 +1,64 @@
+<h1 id="appTitle">Process Definitions</h1>
+
+<button class="btn btn-primary" href="#" role="button" id="refreshBtn">
+    <i class="bi bi-arrow-clockwise"></i>
+  </button>
+
+
+<button class="btn btn-primary" href="#" role="button" id="newBtn">
+    <i class="bi bi-plus-square-fill"></i>
+</button>
+    
+    
+
+
+<table class="table" id="procTbl">
+    <thead>
+      <tr>
+        <th scope="col">Actions</th>
+        <th scope="col">Name</th>
+        <th scope="col">Description</th>
+        <th scope="col">Main Task</th>
+        <th scope="col">Main Task Description</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+
+
+<div class="modal fade" id="procDefMdl" data-bs-backdrop="static" tabindex="-1" aria-labelledby="procDefMdlLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="procDefMdlLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+
+          <input type="hidden" class="form-control" id="proc-id">
+          <input type="hidden" class="form-control" id="proc-version">
+          <input type="hidden" class="form-control" id="edit-mode">
+
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Name:</label>
+            <input type="text" class="form-control" id="proc-name" disabled>
+          </div>
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label">Description:</label>
+            <input type="text" class="form-control" id="proc-descr" disabled></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="procDefPage.js"></script>

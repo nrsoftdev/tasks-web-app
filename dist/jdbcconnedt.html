@@ -1,0 +1,53 @@
+<h1 id="appTitle">Jdbc Connector</h1>
+
+<form class="needs-validation" novalidate>
+
+<div class="mb-3">
+    <label for="conn-name" class="col-form-label">Name:</label>
+    <input type="text" class="form-control" id="conn-name">
+</div>
+<div class="mb-3">
+    <label for="conn-descr" class="col-form-label">Description:</label>
+    <input type="text" class="form-control" id="conn-description"></textarea>
+</div>
+<div class="mb-3">
+    <label for="conn-driver" class="col-form-label">Driver:</label>
+    <input type="text" class="form-control" id="conn-driver"></textarea>
+</div>
+
+<div class="mb-3">
+    <label for="conn-url" class="col-form-label">Url:</label>
+    <input type="text" class="form-control" id="conn-url"></textarea>
+</div>
+
+<div class="mb-3">
+    <label for="conn-user" class="col-form-label">User:</label>
+    <input type="text" class="form-control" id="conn-dbuser"></textarea>
+</div>
+
+<div class="mb-3">
+    <label for="conn-pwd" class="col-form-label" autocomplete="off">Password:</label>
+    <input type="password" class="form-control" id="conn-password" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
+</div>
+
+<div class="mb-3">
+    <label for="conn-pwd2" class="col-form-label" autocomplete="off">Confirm Password:</label>
+    <input type="password" class="form-control" id="conn-password2" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');">
+</div>
+
+
+
+
+</form>
+<div class="btn-group mb-3" role="group" aria-label="navigation">
+<button type="button" class="btn btn-secondary" id="btnCancel" >Cancel</button>
+<button type="button" class="btn btn-primary" id="btnConfirm">Confirm</button>
+</div>
+
+<div class="toast-container" style="position: absolute; top: 55px; right: 10px;">
+</div>
+
+
+
+<script src="jdbcConnEdtPage.js"></script>
+  
