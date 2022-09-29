@@ -1,16 +1,17 @@
-import { ApplicationData } from "./appdata";
+import { Application } from "./app";
+import { ProcessDefData } from "./appdata";
 
-export function getProcessDef(appData: ApplicationData, processId: any, version: any) 
-: JQuery.jqXHR
+export function getProcessDef(appData: Application, processId: string, version: string) 
+: JQuery.Promise<ProcessDefData> 
 {
 
     let url = appData.config.urlSvc + '/procdef/'+ processId + "/" + version;
-    return $.get(
-        url
-    );
+    return $.get(url).then( function(data) { 
+        return new ProcessDefData(data);
+    } );   
 }
 
-export function getProcessList(appData: ApplicationData) 
+export function getProcessList(appData: Application) 
 : JQuery.jqXHR
 {
 
@@ -20,7 +21,7 @@ export function getProcessList(appData: ApplicationData)
     );
 }
 
-export function deleteProcessDef(appData: ApplicationData, processId: any, version: any)
+export function deleteProcessDef(appData: Application, processId: any, version: any)
 : JQuery.jqXHR {
     let url = appData.config.urlSvc + '/procdef/'+ processId +"/"+version;
     return $.ajax(
@@ -30,7 +31,7 @@ export function deleteProcessDef(appData: ApplicationData, processId: any, versi
         });
 }
 
-export function changeProcessDef(appData: ApplicationData, processId: any, version: any, data: any)
+export function changeProcessDef(appData: Application, processId: any, version: any, data: any)
 : JQuery.jqXHR {
     let url = appData.config.urlSvc + '/procdef/'+ processId+"/"+version;
     return $.ajax(
@@ -42,7 +43,7 @@ export function changeProcessDef(appData: ApplicationData, processId: any, versi
     );
 }
 
-export function runProcess(appData: ApplicationData, processId: any, version: any) : JQuery.jqXHR {
+export function runProcess(appData: Application, processId: any, version: any) : JQuery.jqXHR {
 
     let url = appData.config.urlSvc + '/procdef/run/' + processId + "/" + version + "?user=" + appData.currentUser;
     return $.ajax(
@@ -54,7 +55,7 @@ export function runProcess(appData: ApplicationData, processId: any, version: an
     );
 }
 
-export function getVariables(appData: ApplicationData, processId: any, version: any) : JQuery.jqXHR {
+export function getVariables(appData: Application, processId: any, version: any) : JQuery.jqXHR {
     let url = appData.config.urlSvc + '/procdef/' + processId + "/" + version + "/vars";
     return $.get(
         url

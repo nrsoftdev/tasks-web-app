@@ -1,9 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import { AppWindow } from "./app";
+import { AppWindow, getStringValue } from "./app";
 import * as connsvc  from './connsvc';
-import { createErrorToast } from './errormng';
+import { createResponseToast } from './errormng';
+import { TextConnData } from './appdata';
 
 
 
@@ -17,21 +18,25 @@ $("#btnCancel").on("click", goBack);
 
 $("#btnConfirm").on("click", function() {
 
-    const data = { 
-        "connId": 0
-        , "name": $("#conn-name").val()
-        , "description": $("#conn-description").val()
-        , "filename": $("#conn-filename").val()
-        , "user": application.currentUser
-    };
+    let textConnData = window.application.getApplicationData() as TextConnData;
+
+  
+    textConnData.connId = "";
+    textConnData.name = getStringValue($("#conn-name").val());
+    textConnData.description = getStringValue($("#conn-description").val());
+    textConnData.filename = getStringValue($("#conn-filename").val());
+    textConnData.user = application.currentUser;
+
 
     if(application.isFunctionEdit()  || application.isFunctionDelete()) {
-        data.connId = Number(application.sessionData.get("connId"));
-    } 
+        textConnData.connId = application.currentId;
+    } else if(application.isFunctionNew()) {
+        textConnData.connId = "0";
+    }
 
     if(application.isFunctionEdit() || application.isFunctionNew()) {
 
-        connsvc.changeTextConn(application, data.connId, data)
+        connsvc.changeTextConn(application, textConnData)
         .then(goBack)
         .catch( function(xhr: JQuery.jqXHR<any>, status: JQuery.Ajax.ErrorTextStatus, message:String) {
 
@@ -43,13 +48,13 @@ $("#btnConfirm").on("click", function() {
             $(".form-control").removeClass("is-valid");
 
             if(xhr.responseJSON)
-                createErrorToast("#conn-", xhr.responseJSON?.responseDetails);
+                createResponseToast("#conn-", xhr.responseJSON?.responseDetails);
 
             $(".form-control").not("is-invalid").addClass("is-valid");
 
         });
     } else {
-        connsvc.deleteTextConn(application, data.connId ).then(goBack);
+        connsvc.deleteTextConn(application, textConnData ).then(goBack);
     }
     
 })
@@ -59,18 +64,21 @@ $(function() {
 
     if(application.isFunctionEdit() || application.isFunctionDelete()) {
 
-        const connId = application.sessionData.get("connId");
-        if(connId>0) {
+        const connId = application.currentId;
+        if(Number(connId)>0) {
             let url = window.application.config.urlSvc + '/textconn/'+ connId;
             $.ajax(
                 url,
                 {
                     'method': 'GET',
                     'success': function(data){
-                        console.log(data);
+                        let textConnData = new TextConnData(data);
+                        //console.log(data);
                         $("#conn-name").val(data.name);
                         $("#conn-description").val(data.description);
                         $("#conn-filename").val(data.filename);
+
+                        window.application.setApplicationData(textConnData);
                     }
             
                 }
@@ -82,6 +90,7 @@ $(function() {
             $(".form-control").removeAttr("disabled");
 
     } else {
+        window.application.setApplicationData(new TextConnData());
         $("#conn-id").val("");
         $("#conn-name").val("");
         $("#conn-description").val("");

@@ -1,15 +1,27 @@
-import { ApplicationData } from "./appdata";
+import { Application } from "./app";
+import { TaskDefData } from "./appdata";
 
-export function getTaskDefList(appData: ApplicationData, currentPageNum : number, pageSize: number ) : JQuery.jqXHR {
+export function getTaskDefList(appData: Application, currentPageNum : number, pageSize: number ) 
+//: JQuery.jqXHR
+    : JQuery.Promise<TaskDefData[]> 
+{
 
 
     const url = appData.config.urlSvc + '/task';
     return $.ajax(
         url, {'method': 'GET', 'data': {'pageNum': currentPageNum, 'pageSize': pageSize}}
-    );    
+    ).then( 
+        function(data) { 
+
+            let list: TaskDefData[] = [];
+            for(let i=0;i<data.length;i++)
+                list.push(new TaskDefData(data[i]));    
+            return list;
+        } 
+    );          
 }
 
-export function getTaskDefChildrenList(appData: ApplicationData, taskId : string, currentPageNum : number, pageSize: number ) : JQuery.jqXHR {
+export function getTaskDefChildrenList(appData: Application, taskId : string, currentPageNum : number, pageSize: number ) : JQuery.jqXHR {
 
 
     const url = appData.config.urlSvc + '/task/' + taskId + '/children';
@@ -20,7 +32,7 @@ export function getTaskDefChildrenList(appData: ApplicationData, taskId : string
 
 export type TaskDefSerachFilters = { name?: string, description?: string, classname?: string }
 
-export function searchTaskDefList(appData: ApplicationData, filters: TaskDefSerachFilters, currentPageNum : number, pageSize: number ) : JQuery.jqXHR {
+export function searchTaskDefList(appData: Application, filters: TaskDefSerachFilters, currentPageNum : number, pageSize: number ) : JQuery.jqXHR {
 
     let data : any = filters;
     
@@ -34,33 +46,34 @@ export function searchTaskDefList(appData: ApplicationData, filters: TaskDefSera
 }
 
 
-export function getTaskDef(appData: ApplicationData, taskId : string ) : JQuery.Promise<TaskDefData> {
+export function getTaskDef(appData: Application, taskId : string ) : JQuery.Promise<TaskDefData> {
 
 
     const url = appData.config.urlSvc + '/task/' + taskId;
-    return $.get(url).then( function(data) { return data} );    
+    return $.get(url).then( function(data) { 
+        return new TaskDefData(data);
+    } );    
 }
 
 
-export type TaskDefData = { name: string, description : string, user: string, properties: string , className: string, connectorName: string};
 
-export function saveTaskDef(appData: ApplicationData, taskDefData: TaskDefData, properties: {[k: string]: string}): JQuery.jqXHR {
 
+export function saveTaskDef(appData: Application, taskDefData: TaskDefData, properties: {[k: string]: string}): JQuery.jqXHR {
+
+    let data 
     taskDefData.user = appData.currentUser;
-    taskDefData.properties = JSON.stringify(properties);
     const url = appData.config.urlSvc + '/task';
-    return $.ajax(url, {'method' : 'POST','data' : taskDefData});        
+    return $.ajax(url, {'method' : 'POST','data' : taskDefData.asObject()});        
 }
 
 
 //    return $.ajax(url + "/ip", {'method' : 'PATCH', 'data' : { 'user': appData.currentUser, 'properties': JSON.stringify(properties) } } );
 
-export function changeTaskDef(appData: ApplicationData, taskId: string, taskDefData: TaskDefData, properties: {[k: string]: string})  {
-    const url = appData.config.urlSvc + '/task/' + taskId;
+export function changeTaskDef(appData: Application, taskDefData: TaskDefData, properties: {[k: string]: string})  {
+    const url = appData.config.urlSvc + '/task/' + taskDefData.taskId;
     taskDefData.user = appData.currentUser;
-    taskDefData.properties = JSON.stringify(properties);
 
-    return $.ajax(url, {'method' : 'PATCH', 'data' : taskDefData})
+    return $.ajax(url, {'method' : 'PATCH', 'data' : taskDefData.asObject()})
     .then(
         function(data) : JQuery.jqXHR {
             return $.ajax(url + "/ip"
@@ -72,7 +85,7 @@ export function changeTaskDef(appData: ApplicationData, taskId: string, taskDefD
 
 
 
-export function deleteTaskDef(appData: ApplicationData, taskId: string): JQuery.jqXHR {
+export function deleteTaskDef(appData: Application, taskId: string): JQuery.jqXHR {
     const url = appData.config.urlSvc + '/task' + "/" + taskId;
     return $.ajax({
         'url': url,
@@ -80,12 +93,20 @@ export function deleteTaskDef(appData: ApplicationData, taskId: string): JQuery.
     });
 }
 
-export function saveChildrenTask(appData: ApplicationData
-    , parentTaskId: string, taskDefData: TaskDefData, properties: {[k: string]: string}): JQuery.jqXHR {
-
-
+export function saveChildrenTask(appData: Application, taskDefData: TaskDefData): JQuery.jqXHR {
         taskDefData.user = appData.currentUser;
-        taskDefData.properties = JSON.stringify(properties);
-        const url = appData.config.urlSvc + '/task/' + parentTaskId + "/children";
-        return $.ajax(url, {'method' : 'POST','data' : taskDefData});          
+        const url = appData.config.urlSvc + '/task/' + taskDefData.parentTaskId + "/children";
+        return $.ajax(url, {'method' : 'POST','data' : taskDefData.asObject()});          
 }
+
+
+export function attachChildrenTask(appData: Application): JQuery.jqXHR {
+    const url = appData.config.urlSvc + '/task/' + appData.currentParentId + "/children/" + appData.currentChildId;
+    return $.ajax(url, {'method' : 'PUT'});          
+}
+
+export function detachChildrenTask(appData: Application): JQuery.jqXHR {
+    const url = appData.config.urlSvc + '/task/' + appData.currentParentId + "/children/" + appData.currentChildId;
+    return $.ajax(url, {'method' : 'DELETE'});          
+}
+

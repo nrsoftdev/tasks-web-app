@@ -3,8 +3,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 //import "bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import { Application, AppWindow } from "./app";
-import * as connsvc  from './connsvc';
+import { Application, AppWindow } from "../app";
+import * as connsvc  from '../connsvc';
+import { JdbcConnData } from '../appdata';
 
 /*
 [
@@ -27,7 +28,7 @@ import * as connsvc  from './connsvc';
 */
 
 declare let window : AppWindow;
-let application = window.application;
+let application : Application = window.application;
 
 
 
@@ -45,14 +46,14 @@ function loadList() {
                 + `</th><td>${data[i].name}</td><td>${data[i].description?data[i].description:""}</td>`
                 + `<td>${data[i].driver?data[i].driver:""}</td>`
                 + `<td>${data[i].url?data[i].url:""}</td>`
-                + `<td>${data[i].user?data[i].user:""}</td></tr>`
+                + `<td>${data[i].dbuser?data[i].dbuser:""}</td></tr>`
                 );
             
             $(".start-edit").on("click", 
             function startEdit() {
                 const connId = $(this).data("connid");
-                application.sessionData.clear();
-                application.sessionData.set("connId", connId);
+               
+                application.currentId= connId;
                 application.setFunctionEdit();
                 
                 setTimeout(
@@ -63,9 +64,8 @@ function loadList() {
             $(".start-delete").on("click", 
             function startDelete(): void {
                 const connId = $(this).data("connid");
-                application.sessionData.clear();
                 application.setFunctionDelete();
-                application.sessionData.set("connId", connId);
+                application.currentId= connId;
                 setTimeout(
                     function() { window.application.navigateTo("jdbcconnedt.html");},
                     1);
@@ -79,7 +79,7 @@ function loadList() {
 
 
 $('#newBtn').on("click", function() {
-    application.sessionData.clear();
+    application.setApplicationData(new JdbcConnData());
     application.setFunctionNew();
     
     setTimeout(

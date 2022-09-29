@@ -8,13 +8,14 @@ module.exports = {
      homePage: './src/home.ts',
      textConnPage: './src/textconn.ts',
      textConnEdtPage: './src/textconnedt.ts',
-     jdbcConnEdtPage: './src/jdbcconnedt.ts',
-     jdbcConnPage: './src/jdbcconn.ts',
+     jdbcConnEdtPage: './src/jdbcconn/jdbcconnedt.ts',
+     jdbcConnPage: './src/jdbcconn/jdbcconn.ts',
 
      taskDefPage: './src/taskdef.ts',
      taskDefEdtClassNamePage: './src/taskdefedt/classname.ts',
      taskDefEdtPage: './src/taskdefedt/basic.ts',
      taskDefEdtPropertiesPage: './src/taskdefedt/properties.ts',
+     taskDefEdtSubTaskPage: './src/taskdefedt/task.ts',
 
      procDefPage: './src/processdef.ts',
      procDefEdtPage: './src/procdefedt/basic.ts',

@@ -1,23 +1,16 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Application, AppWindow, getStringValue } from '../app';
-import { getTaskDef, getTaskDefList, TaskDefData } from '../taskdefsvc';
+import { getTaskDef, getTaskDefList } from '../taskdefsvc';
 import { MetadataInfo } from '../metadata/metadata';
 import { getJdbcConnList, getTextConnList } from '../connsvc';
+import { TaskDefData } from '../appdata';
 
 
 
 declare let window : AppWindow;
 let metadataInfo: MetadataInfo;
 
-let taskDefData : TaskDefData = {
-    name: '',
-    description: '',
-    user: '',
-    properties: '',
-    className: '',
-    connectorName: ''
-};
 
 $('#btnPrevious').on('click',
 function() {
@@ -26,7 +19,7 @@ function() {
         window.application.navigateTo('taskdefedt/classname.html');
     else {
         window.application.clearCurrentFunction();
-        window.application.sessionData.clear();
+        window.application.clearApplicationData();
         window.application.navigateTo('taskdef.html');
     }
 }
@@ -34,6 +27,9 @@ function() {
 
 $('#btnNext').on('click',
 function() {
+
+    let taskDefData : TaskDefData = window.application.getApplicationData() as TaskDefData;
+
     taskDefData.name = getStringValue($("#task-name").val());
     taskDefData.description = getStringValue($("#task-description").val());
     taskDefData.className = getStringValue($("#task-className").val());
@@ -44,11 +40,12 @@ function() {
     else if(metadataInfo.connectorType==="JDBC") {
         connectorName = getStringValue($("#select-jdbc-conn").val());
     }
-    if(connectorName.length>0)
-        taskDefData.connectorName = connectorName;
+    if(connectorName=="NONE") connectorName="";
+    //if(connectorName.length>0)
+    taskDefData.connectorName = connectorName;
 
 
-    window.application.sessionData.set("taskDefData", taskDefData);
+    //window.application.sessionData.set("taskDefData", taskDefData);
     window.application.navigateTo('taskdefedt/properties.html');
 });
 
@@ -62,34 +59,39 @@ select-jdbc-conn-group
 $(
     function() {
 
+
         if(window.application.isFunctionNew()) {
-            const className = window.application.sessionData.get("className");
-            $("#task-className").val(className);
-            metadataInfo = window.application.metadata[className];
+            let taskDefData = window.application.getApplicationData() as TaskDefData;
+            $("#task-className").val(taskDefData.className);
+            metadataInfo = window.application.metadata[taskDefData.className];
         } else if(window.application.isFunctionEdit()) {
+
+             
             $("#task-name").prop("disabled",true);
 
-            const taskId = window.application.sessionData.has("taskId")?String(window.application.sessionData.get("taskId")):"";
-            if(taskId.length>0)
-                getTaskDef(window.application, taskId)
+
+            if(window.application.currentId.length>0)
+                getTaskDef(window.application, window.application.currentId)
                 .then(
-                    async function(data) {
+                    async function(data: TaskDefData) {
+                        window.application.setApplicationData(data);
+                   
                         const className = data.className;
                         metadataInfo = window.application.metadata[className];
-                        window.application.sessionData.set("className", className);
+                        //taskDefData.className=className;
 
-                        window.application.sessionData.set("task-properties", data.properties);
+                        //taskDefData.properties = data.properties;
 
                         $("#task-className").val(className);
                         $("#task-name").val(data.name);
                         $("#task-description").val(data.description);
                         $("#task-className").val(data.className);
                         if(metadataInfo.connectorType==="TEXT") {
-                            await loadTextConnList();
+                            await loadTextConnList(data.connectorName);
                             $("#select-text-conn-group").show();
                         }
                         else if(metadataInfo.connectorType==="JDBC") {
-                            await loadJdbcConnList();
+                            await loadJdbcConnList(data.connectorName);
                             $("#select-jdbc-conn-group").show();
                         }
                         
@@ -100,29 +102,41 @@ $(
     }
 );
 
-async function loadTextConnList() {
+async function loadTextConnList(connectorName:string) {
     const data = await getTextConnList(window.application);
+    let initSelection = "";
+    if(connectorName.length==0) initSelection = "SELECTED";
     $('#select-text-conn').empty();
-    $('#select-text-conn').append("<option selected value='NONE'>Select a connector</option>");
+    $('#select-text-conn').append("<option " + initSelection + " value='NONE'>Select a connector</option>");
     for (let i = 0; i < data.length; i++) {
+        let selectedValue = "";
+
+        if(data[i].name===connectorName)
+            selectedValue = "selected";
 
         $('#select-text-conn').append($('<option>', {
             value: data[i].name,
-            text: data[i].name + " - " + data[i].description + " (" + data[i].filename + ")"
+            text: data[i].name + " - " + data[i].description + " (" + data[i].filename + ")",
+            selected: selectedValue
         }));
     }
 }
 
-async function loadJdbcConnList() {
+async function loadJdbcConnList(connectorName:string) {
     const data = await getJdbcConnList(window.application);
+    let initSelection = "";
+    if(connectorName.length==0) initSelection = "SELECTED";
     $('#select-jdbc-conn').empty();
-    $('#select-jdbc-conn').append("<option selected value='NONE'>Select a connector</option>");
+    $('#select-jdbc-conn').append("<option " + initSelection + " value='NONE'>Select a connector</option>");
     for (let i = 0; i < data.length; i++) {
-
-        $('#select-jdbc-conn').append($('<option>', {
+        let optionData = {
             value: data[i].name,
-            text: data[i].name + " - " + data[i].description + " (" + data[i].url + ")"
-        }));
+            text: data[i].name + " - " + data[i].description + " (" + data[i].url + ")",
+            selected: ""
+        };
+        if(optionData.value===connectorName)
+            optionData.selected = "selected";
+        $('#select-jdbc-conn').append($('<option>', optionData ));
     }
 }
 

@@ -39,14 +39,20 @@
 </table>
 */
 
-import { ApplicationData } from "./appdata";
+
+import { Application, getStringValue } from "./app";
+import { TaskDefData } from "./appdata";
 import { getTaskDefChildrenList, getTaskDefList, searchTaskDefList } from "./taskdefsvc";
 
 export type TaskTablePaginationOptions = { pageSize:number, previousPageId: string, nextPageId: string};
 
-export type TaskTableOptions = { selection?: boolean, filters?: boolean, edit?:boolean, paginationOptions? : TaskTablePaginationOptions };
+export type TaskTableOptions = { 
+  actions?: boolean /** First column is "Selection" */
+  , filters?: boolean /** Filters on columns heading */
+  , edit?:boolean
+ };
 
-export type TaskInfo = { taskId: number, name: string, description: string, className: string, children: number, allowsChildren: boolean };
+//export type TaskInfo = { taskId: number, name: string, description: string, className: string, children: number, allowsChildren: boolean };
 
 
 export class TaskTable {
@@ -56,6 +62,9 @@ export class TaskTable {
   OnStartEdit!: (event: JQuery.ClickEvent) => void;
   OnStartDelete!: (event: JQuery.ClickEvent) => void;
   OnChildrenEdit!: (event: JQuery.ClickEvent) => void;
+  OnStartConfirm!: (event: JQuery.ClickEvent) => void;
+  OnStartCancel!: (event: JQuery.ClickEvent) => void;
+
   
 
   private options: TaskTableOptions;
@@ -70,13 +79,21 @@ export class TaskTable {
 
   lastParentTaskIdNone = -1;
 
-  private columns = ['Actions', 'Name', 'Description', 'Class Name', 'Children'];
-  appData: ApplicationData;
+  private columns : {name: string, width: string} [ ] 
+                = [{name: 'Actions', width:"10%"},
+                {name: 'Name', width:"15%"},
+                {name:'Description', width:""},
+                {name: 'Class Name', width:" 20%"},
+                {name: 'Children', width:"10%"}];
+  appData: Application;
   listData: any;
   
-  constructor(selector:string, appData: ApplicationData, options: TaskTableOptions | null = null) {
+  constructor(selector:string
+    , appData: Application
+    , options: TaskTableOptions | null = null
+    , paginationOptions: TaskTablePaginationOptions | null = null) {
 
-    this.selector = selector;
+    
     this.appData = appData;
     if(options==null)
       this.options = {};
@@ -84,25 +101,36 @@ export class TaskTable {
       this.options = options;
 
 
-    if(options?.paginationOptions!=null) {
-      this.paginationOptions = options.paginationOptions;
+    if(paginationOptions==null) {
+      this.paginationOptions = { pageSize:0, previousPageId: "", nextPageId: "" }; ;
     } else {
-      this.paginationOptions = { pageSize:0, previousPageId: "", nextPageId: "" };
+      this.paginationOptions = paginationOptions;
     }
 
     $(selector).append(
-      '<button class="btn btn-primary" href="#" role="button" id="backBtn"><i class="bi bi-arrow-up-square-fill"></i></button>&nbsp;'
+      '<div id="tblToolbar" class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">'
+      + '<button class="btn btn-primary" href="#" role="button" id="backBtn"><i class="bi bi-arrow-up-square-fill"></i></button>&nbsp;'
       +'<button class="btn btn-primary" href="#" role="button" id="refreshBtn"><i class="bi bi-arrow-clockwise"></i></button>&nbsp;'
       +'<button class="btn btn-primary" href="#" role="button" id="newBtn"><i class="bi bi-plus-square-fill"></i></button>&nbsp;'
-      +'<button class="btn btn-primary" href="#" role="button" id="searchBtn" style="display:none"><i class="bi bi-search"></i></button>'
+      +'<button class="btn btn-primary" href="#" role="button" id="searchBtn" style="display:none"><i class="bi bi-search"></i></button>&nbsp;'
+      +'<button class="btn btn-primary" href="#" role="button" id="confirmBtn" style="display:none"><i class="bi bi-check-square-fill"></i></button>&nbsp;'
+      +'<button class="btn btn-primary" href="#" role="button" id="cancelBtn" style="display:none"><i class="bi bi-x-square-fill"></i></button>&nbsp;'
+      +'</div>'
     );
-    $("#searchBtn").after('<table class="table" id="taskTbl"><thead></thead><tbody></tbody></table>');
+
+    $("#tblToolbar").after('<table class="table" id="taskTbl"><thead></thead><tbody></tbody></table>');
 
     $("#taskTbl").after(this.buildNavigation());
 
+    this.selector = "#taskTbl";
+
+    $(selector).append(`<div id="spinner1" class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`);
+
+    if(!options?.actions) {
+      $('#confirmBtn').show();
+      $('#cancelBtn').show();
+    }
     
-
-
     $(".page-link-num").on("click", this.setCurrentPageNum.bind(this));
 
     $("#previousPage").on("click", this.previousPage.bind(this)  );
@@ -122,6 +150,14 @@ export class TaskTable {
     this.OnStartDelete = OnStartDelete;
   }
 
+  public setOnStartConfirm(OnStartConfirm: (event: JQuery.ClickEvent) => void) {
+    this.OnStartConfirm = OnStartConfirm;
+  }
+
+  public setOnStartCancel(OnStartCancel: (event: JQuery.ClickEvent) => void) {
+    this.OnStartCancel = OnStartCancel;
+  }  
+
   public setOnChildrenEdit(OnChildrenEdit: (event: JQuery.ClickEvent) => void) {
     this.OnChildrenEdit = OnChildrenEdit;
   }  
@@ -138,6 +174,10 @@ export class TaskTable {
 
   public getCurrentTaskId(): string {
     return this.currentTaskId;
+  }
+
+  public getCurrentSelectedTaskId(): string {
+    return getStringValue($("input[name='taskSelect']:checked").val());
   }
 
 
@@ -161,17 +201,20 @@ export class TaskTable {
   }
 
 
-  public loadList() {
+  public loadList(afterLoad?:any) {
+    $("#spinner1").show();
     this.empty();
 
     const me = this;
-
     getTaskDefList(this.appData, this.currentPageNum, this.paginationOptions.pageSize)
     .then(
-        function(data:any) {
+        function(data:TaskDefData[]) {
           me.data(data);
+          $("#spinner1").hide();
         }
     );
+
+
   }
 
 
@@ -209,38 +252,81 @@ export class TaskTable {
 
   public createTable() {
    
-    if(this.options?.selection) {
-      this.columns[0] = "Select";
+    if(!this.options?.actions) {
+      this.columns[0].name = "Select";
     }
 
 
-    for(const column of this.columns)
-      $(this.selector).children('thead').append(`<th scope="col">${this.getColumnHeader(column)}</th>`);
+    for(const column of this.columns) {
+      let width = column.width;
+      if(width!=="") {
+        width = ' style="width:'+ width +'"';
+      }
+      $(this.selector).children('thead').append(`<th scope="col"${width}>${this.getColumnHeader(column.name)}</th>`);
+    }
+    let me = this;
+    $('#select-class').on('change', function () {
+      var selectVal = $("#select-class option:selected").val();
+      console.log("selectVal " + selectVal);
+
+      let name : string = String($("#select-name").val());
+      let desc : string = String($("#select-description").val())
+
+      if(name!=="") name = "%" + name + "%";
+      if(desc!=="") desc = "%" + desc + "%";
+
+      me.loadListSearch( name , desc, getStringValue($("#select-class").val()));
+    });
+
+
+    $(".task-selection").on("keypress",
+      function(e) {
+        if(e.key=="Enter") {
+
+        let name : string = String($("#select-name").val());
+        let desc : string = String($("#select-description").val())
+
+        if(name!=="") name = "%" + name + "%";
+        if(desc!=="") desc = "%" + desc + "%";
+
+        me.loadListSearch( name , desc, getStringValue($("#select-class").val()));
+    }
+
+    });
+
+    $('#confirmBtn').on('click', this.OnStartConfirm);
+    $('#cancelBtn').on('click', this.OnStartCancel);
+  
   }
 
-  private getColumnHeader(column: string) {
+  private getColumnHeader(columnName: string) {
 
 
     if(this.options?.filters) {
-        if(column == "Name" || column=="Description")
-            return `<input type="text" id="select-${column.toLowerCase()}"  class="form-control task-selection" placeholder="${column}">`
+        if(columnName == "Name" || columnName=="Description")
+            return `<input type="text" id="select-${columnName.toLowerCase()}"  class="form-control task-selection" placeholder="${columnName}">`
 
-        if(column == "Class Name")
+        if(columnName == "Class Name")
           return `<select class="form-select" id="select-class"><option selected value="">Class Name</option></select>`;
         
     }
-    return column;
+    return columnName;
   }
 
   public empty() {
     $(this.selector).find('tbody').empty();
   }
 
-  public data(data: [TaskInfo]) {
+  /**
+   * Add all data to grid
+   * @param data list of TaskInfo 
+   */
+  public data(data: TaskDefData[]) {
+    
     for(let i=0;i<data.length;i++) {
       let row = `<tr><th scope="row">`;
 
-      if(this.options.selection) {
+      if(!this.options.actions) {
         row += `<input class="form-check-input" type="radio" name="taskSelect" value="${data[i].taskId}">`;
       } else {
         row += `<a class="btn btn-primary start-edit" role="button" href='#' data-taskId="${data[i].taskId}"><i class="bi bi-pencil-square"></i></a>&nbsp;`;
@@ -273,6 +359,7 @@ export class TaskTable {
       $('.start-children').on("click", 
         (event: JQuery.ClickEvent) =>
           this.loadChildrenList(event));
+          
   }
 
   private loadChildrenList(event: JQuery.ClickEvent) {
@@ -345,9 +432,6 @@ export class TaskTable {
 
   private async nextPage(event: JQuery.ClickEvent) {
 
-
-
-
     if(this.currentPageNum<this.currentPages) {
       
       $(`#page-item-${this.currentPageNum}`).removeClass("active");
@@ -378,7 +462,7 @@ export class TaskTable {
   
 }
 
-function pageNum(appData: ApplicationData, taskId: string, pageNum: any, pageSize: number) {
+function pageNum(appData: Application, taskId: string, pageNum: any, pageSize: number) {
   throw new Error("Function not implemented.");
 }
 

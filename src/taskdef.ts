@@ -7,7 +7,7 @@ import { AppWindow, getStringValue } from "./app";
 
 import { TaskTable, TaskTableOptions, TaskTablePaginationOptions } from './taskdeftable';
 import { getClassMetadata, getMetadata, Metadata } from './metadata/metadata';
-import { changeTaskDef, saveTaskDef } from './taskdefsvc';
+import { changeTaskDef, detachChildrenTask, saveTaskDef } from './taskdefsvc';
 
 declare let window : AppWindow;
 
@@ -36,70 +36,11 @@ let textConnectors = [];
 let jdbcConnectors = [];
 
 let taskTable: TaskTable;
-
-const PAGE_SIZE=3;
 let currentPageNum=1;
 let currentPages=1;
 
 
 /*
-function loadList() {
-    taskTable.empty();
-
-    let url = window.application.config.urlSvc + '/task';
-    $.ajax(
-        url, {'method': 'GET', 'data': {'pageNum': currentPageNum, 'pageSize': PAGE_SIZE}}
-
-    ).then(
-        function(data:any){
-            taskTable.data(data);
-        }
-    );
-}
-*/
-
-/*
-function setCurrentPageNum(event: JQuery.ClickEvent) {
-    currentPageNum = Number($(event.target).data("pagenum"));
-    loadList();
-
-}
-
-$(".page-link-num").on("click", setCurrentPageNum);
-
-$("#previousPage").on("click", 
-function(this) {
-    if(currentPageNum>0)
-        currentPageNum--
-    loadList();
-
-})
-
-$("#nextPage").on("click", 
-function(this) {
-    
-    currentPageNum++;
-    if(currentPageNum-1==currentPages) {
-        currentPages++;
-        const last = $(".page-item-last");
-        const node = $(`<li class="page-item page-item-last"><a class="page-link page-link-num" href="#" data-pageNum="${currentPageNum}">${currentPageNum}</a></li>`); 
-        $(".page-item-last").after(node);
-        last.removeClass("page-item-last");
-
-        node.children(".page-link-num") .on("click", setCurrentPageNum );
-
-        
-    }
-
-    
-    loadList();
-
-})
-*/
-
-
-// let currentClassMetadata: { [x: string]: { description: string; propertyType: string }; }={};
-
 let taskDefMdl = $('#taskDefMdl');
 taskDefMdl.on('show.bs.modal', function (event:any) {
 
@@ -197,7 +138,7 @@ taskDefMdl.on('show.bs.modal', function (event:any) {
 
 });
 
-
+*/
 
 
 
@@ -205,6 +146,7 @@ taskDefMdl.on('show.bs.modal', function (event:any) {
 /*
 Called when the user decide to create a new TaskDef
 */
+/*
 $("#confirmNewBtn").on("click"
 , function() {
 
@@ -236,7 +178,7 @@ $("#confirmNewBtn").on("click"
         $("#taskNewMdl").modal("toggle");
 });
 
-
+*/
 
 
 
@@ -245,14 +187,15 @@ let metadata : Metadata;
 $(function() {
 
     let paginationOptions : TaskTablePaginationOptions = { pageSize:5, nextPageId: "nextPage", previousPageId: "previousPage" };
-    let options: TaskTableOptions = { 'paginationOptions': paginationOptions, selection: false  };
-    taskTable = new TaskTable('#taskTableContainer', window.application, options);
+    let options: TaskTableOptions = { actions: true  };
+    taskTable = new TaskTable('#taskTableContainer', window.application, options, paginationOptions);
 
     taskTable.createTable();
 
     taskTable.setOnStartEdit(OnStartEdit.bind(this));
     taskTable.setOnStartNew(OnStartNew.bind(this));
     taskTable.setOnStartDelete(OnStartDelete.bind(this));
+    taskTable.setOnStartSearch(OnStartSearch.bind(this));
 
     taskTable.loadList();
 
@@ -267,25 +210,6 @@ $(function() {
     
 
     $("#refreshBtn").on("click", function() {taskTable.loadList()});    
-
-
-    /*
-    $('#select-text-conn').on('change', 
-    function() {
-        if($(this).val()=="NONE")
-            $(".task-prop-conn").show();
-        else
-            $(".task-prop-conn").hide();
-    });
-
-    $('#select-jdbc-conn').on('change', 
-    function() {
-        if($(this).val()=="NONE")
-            $(".task-prop-conn").show();
-        else
-            $(".task-prop-conn").hide();
-    });
-    */
 
 });
 
@@ -308,18 +232,29 @@ function buildTaskForm(className: string, propMetadata: any) {
 
 function OnStartNew(event: JQuery.ClickEvent) {
     window.application.setFunctionNew();
-    window.application.sessionData.set("parentTaskId", taskTable.getCurrentTaskId());
+    window.application.currentParentId = taskTable.getCurrentTaskId();
     window.application.navigateTo('taskdefedt/classname.html');
 }
 
 function OnStartEdit(event: JQuery.ClickEvent) {
     const taskId = getStringValue($(event.currentTarget).data("taskid")); 
-    window.application.sessionData.set("taskId", taskId);
+    window.application.currentId = taskId;
     window.application.setFunctionEdit();
     window.application.navigateTo("taskdefedt/basic.html");
 }
 
 function OnStartDelete(event: JQuery.ClickEvent) {
-    throw new Error('Function not implemented.');
+    window.application.currentParentId = taskTable.getCurrentTaskId();
+    window.application.currentChildId = getStringValue($(event.currentTarget).data("taskid")); 
+    detachChildrenTask(window.application);
+
+}
+
+function OnStartSearch(event: JQuery.ClickEvent) { 
+
+
+    window.application.setFunctionAddChild();
+    window.application.currentParentId = taskTable.getCurrentTaskId();
+    window.application.navigateTo("taskdefsubtask.html");
 }
 

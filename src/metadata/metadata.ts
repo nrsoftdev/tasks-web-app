@@ -1,6 +1,4 @@
-import { ApplicationData } from "../appdata";
-
-
+import { Application } from "../app";
 
 export type MetadataInfo = {className:string, connectorType:string, name: string, description: string, allowsChildren:boolean};
 
@@ -26,7 +24,7 @@ export type ClassMetadata = { [propertyName: string] : ClassMetadataProperty;}
 
 
 
-export async function  getMetadata(appData : ApplicationData): Promise<Metadata> {
+export async function  getMetadata(appData : Application): Promise<Metadata> {
 
     return $.get( 
         appData.config.urlSvc + "/md"
@@ -50,7 +48,7 @@ function extracMetadata(data:any): Metadata {
     return metadata;
 }
 
-export async function getClassMetadata(appData : ApplicationData, className: string): Promise<ClassMetadata> {
+export async function getClassMetadata(appData : Application, className: string): Promise<ClassMetadata> {
     return $.ajax({
         'method': 'GET',
         'url': appData.config.urlSvc + "/md/" + className,

@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Application, AppWindow, getStringValue } from '../app';
+import { TaskDefData } from '../appdata';
 
 declare let window : AppWindow;
 
@@ -9,7 +10,7 @@ declare let window : AppWindow;
 $('#btnCancel').on('click',
 function() {
     window.application.clearCurrentFunction();
-    window.application.sessionData.clear();
+    window.application.clearApplicationData();
     window.application.navigateTo('taskdef.html');
 }
 );
@@ -17,8 +18,11 @@ function() {
 $('#btnNext').on('click',
 function() {
 
+
+    let taskDefData : TaskDefData = new TaskDefData();
     const className = getStringValue($("#select-class").val());
-    window.application.sessionData.set("className", className);
+    taskDefData.className = className;
+    window.application.setApplicationData(taskDefData);
     window.application.navigateTo('taskdefedt/basic.html');
     
 });

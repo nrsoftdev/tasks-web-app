@@ -1,28 +1,46 @@
-import { ApplicationData } from "./appdata";
+import { CommonData } from "./appdata";
 import { Metadata } from "./metadata/metadata";
 
 enum Function {
+    /** Initial value */
     NONE,
+    /** Creating new entity */
     NEW,
+    /** Chaning entity */
     EDIT,
-    DELETE
+    /** deleting entity */
+    DELETE,
+    /** creating new child to existing entity */
+    NEW_CHILD,
+    /** adding child to existing entity */
+    ADD_CHILD
+}
+
+enum Entity {
+    TASK,
+    PROCESS
 }
 
 
-class Application extends ApplicationData {
+class Application {
 
-    /*
-    public config = {urlSvc : 'http://localhost:9000/tasks-svc/rest'};
+
+    public config = {urlSvc : ''};
 
     public currentUser: string="";
-*/
+
+    private data:CommonData | null = null;
 
     constructor() {
-        super();
         this.config.urlSvc = 'http://localhost:9000/tasks-svc/rest';
     }
 
-    private sessionData : Map<string, any> = new Map<string, any>();
+    /** Generic ID currently in edit */
+    public currentId: string = "";
+    /** Generic current parent ID */
+    public currentParentId: string = "";
+
+    public currentChildId: string = "";
 
     public metadata: Metadata = {};
 
@@ -61,14 +79,36 @@ class Application extends ApplicationData {
         this.currentFunction = Function.DELETE;
     }
 
+    public setFunctionAddChild() {
+        this.currentFunction = Function.ADD_CHILD;
+    }
+
+    public isFunctionAddChild() : boolean {
+        return this.currentFunction == Function.ADD_CHILD;
+    }
+
     public clearCurrentFunction(): void {
         this.currentFunction = Function.NONE;
     }
+
+    public getApplicationData(): CommonData | null  {
+        return this.data;
+    }
+
+    public setApplicationData(data: CommonData) {
+        this.data = data;
+    }
+
+    public clearApplicationData() {
+        this.data = null;
+    }    
 }
 
 
 interface AppWindow extends Window {
+
     application : Application;
+
 }
 
 

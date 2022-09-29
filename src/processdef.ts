@@ -37,13 +37,7 @@ function loadList() {
                     .then(
                         function(data) {
                             window.application.setFunctionEdit();
-                            window.application.sessionData.set("proc-id", data.processId);
-                            window.application.sessionData.set("proc-version", data.version);
-                            window.application.sessionData.set("proc-name" , data.name);
-                            window.application.sessionData.set("proc-descr", data.description);
-                            window.application.sessionData.set("proc-taskId", data.taskDefinitionId);
-                            window.application.sessionData.set("proc-taskDesc", data.taskDefinitionDescription);
-                            window.application.sessionData.set("proc-taskName", data.taskDefinitionName);
+                            window.application.setApplicationData(data);
 
                             setTimeout(
                                 function() { window.application.navigateTo("procdefedt/basic.html");},

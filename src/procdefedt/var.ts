@@ -5,8 +5,10 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import { AppWindow } from '../app';
 import * as procdefsvc  from '../procdefsvc';
+import { ProcessDefData } from '../appdata';
 
 declare let window : AppWindow;
+
 
 let variables: any[] = [];
 
@@ -21,8 +23,8 @@ function() {
 
 $('#btnConfirm').on('click',
 function() {
-    window.application.sessionData.set("variables", variables);
-
+    let processDefData = window.application.getApplicationData() as ProcessDefData;
+    processDefData.variables = variables;
     saveProcDef();
 }
 );
@@ -43,11 +45,12 @@ function saveProcDef() {
     // procdef/{id}/0/vars/{varname}
     // user, type, value
 
+    let processDefData = window.application.getApplicationData() as ProcessDefData;
     let url = window.application.config.urlSvc + "/procdef";
     let data = {user: window.application.currentUser
-        , name: window.application.sessionData.get("proc-name")
-        , description: window.application.sessionData.get("proc-descr")
-        , taskDefinitionId: window.application.sessionData.get("taskId")
+        , name: processDefData.name
+        , description: processDefData.description
+        , taskDefinitionId: processDefData.taskDefinitionId
     };
    
     if(window.application.isFunctionNew()) {
@@ -60,7 +63,7 @@ function saveProcDef() {
             function () {
 
                 let vars = [];
-                for(let variable of variables) {
+                for(let variable of processDefData.variables) {
 
                     let url = window.application.config.urlSvc + `/procdef/${currentProcDefId}/0/vars/${variable.name}`;
                     let data = { user : window.application.currentUser, type: variable.type, value: variable.value};
@@ -76,7 +79,9 @@ function saveProcDef() {
 
         $.ajax(
             {
-                'url': url+ "/" + window.application.sessionData.get("proc-id") + "/" + window.application.sessionData.get("proc-version"),
+                'url': url+ "/" 
+                    + processDefData.processId
+                    + "/" + processDefData.version,
                 'method': 'PATCH',
                 'data' : data
             }
@@ -84,7 +89,9 @@ function saveProcDef() {
             function () {
                 return $.ajax({
                     'method': 'PATCH',
-                    'url' : url+ "/" + window.application.sessionData.get("proc-id") + "/" + window.application.sessionData.get("proc-version") + "/vars"
+                    'url' : url+ "/" 
+                        + processDefData.processId 
+                        + "/" + processDefData.version + "/vars"
                     , 'data' : {'variables' : JSON.stringify(variables)}
                 }
                 );
@@ -100,7 +107,7 @@ function saveProcDef() {
 
 
 function endProcessDefOperation() {
-    window.application.sessionData.clear();
+    window.application.clearApplicationData();
     variables = [];
     window.application.navigateTo('processdef.html');
 }
@@ -168,11 +175,13 @@ $('#btnAddVar').on("click",
 
 $(function()
 {
-    $('#proc-name').text(window.application.sessionData.get("proc-name"));
-    $('#proc-descr').text(window.application.sessionData.get("proc-descr"));
+
+    let processDefData = window.application.getApplicationData() as ProcessDefData;
+    $('#proc-name').text(processDefData.name);
+    $('#proc-descr').text(processDefData.description);
 
     if(window.application.isFunctionEdit())
-        procdefsvc.getVariables(window.application, window.application.sessionData.get("proc-id"), window.application.sessionData.get("proc-version"))
+        procdefsvc.getVariables(window.application, processDefData.processId, processDefData.version)
         .then(
             function(data) {
                 variables = data;
