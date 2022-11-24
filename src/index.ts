@@ -8,13 +8,12 @@ window.application.currentUser = "ADMIN";
 
 $("ul.navbar-nav li").each(function() {
     $(this).on("click", function() {
-        //$("#appContainer").load($(this).attr("data-page")+".html");
         window.application.navigateTo($(this).attr("data-page")+".html");
     });
 });
 
 $(function() {
-    window.application.navigateTo("home.html");
+    window.application.navigateTo("login.html");
 });
 
 

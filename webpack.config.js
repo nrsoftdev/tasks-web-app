@@ -4,7 +4,8 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'development',
   entry: {
-     mainPage: './src/index.ts',
+     loginPage: './src/login.ts',
+     indexPage: './src/index.ts',
      homePage: './src/home.ts',
      textConnPage: './src/textconn.ts',
      textConnEdtPage: './src/textconnedt.ts',

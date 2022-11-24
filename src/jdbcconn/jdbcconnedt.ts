@@ -3,15 +3,12 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import { AppWindow, getStringValue } from "../app";
 import * as connsvc  from '../connsvc';
-import { Toast } from 'bootstrap';
-import { createResponseToast } from '../errormng';
+import { setInvalidFields, showResponseToasts } from '../errormng';
 import { JdbcConnData } from '../appdata';
 
 
 declare let window : AppWindow;
 let application = window.application;
-
-
 
 
 $("#btnCancel").on("click", goBack);
@@ -49,8 +46,10 @@ $("#btnConfirm").on("click", function() {
             $(".form-control").removeClass("is-invalid");
             $(".form-control").removeClass("is-valid");
 
-            if(xhr.responseJSON)
-                createResponseToast("#conn-", xhr.responseJSON?.responseDetails);
+            if(xhr.responseJSON) {
+                showResponseToasts(xhr.responseJSON?.responseDetails);
+                setInvalidFields("#conn-", xhr.responseJSON?.responseDetails);
+            }
 
             $(".form-control").not("is-invalid").addClass("is-valid");
 
@@ -87,8 +86,9 @@ $(function() {
         }
         if(application.isFunctionDelete())
             $(".form-control").attr("disabled","disabled");
-        else if(application.isFunctionEdit())
+        else if(application.isFunctionEdit()) {
             $(".form-control").removeAttr("disabled");
+        }
 
     } else {
         $("#conn-id").val("");

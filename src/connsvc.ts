@@ -20,6 +20,10 @@ export function checkTextConn(appData: Application, data: TextConnData): JQuery.
     return checkConn('text', appData, data.connId);
 }
 
+export function checkJdbcConn(appData: Application, data: TextConnData): JQuery.jqXHR {
+    return checkConn('jdbc', appData, data.connId);
+}
+
 export function changeTextConn(appData: Application, data: TextConnData): JQuery.jqXHR {
     let url = appData.config.urlSvc + '/textconn/'+ data.connId;
     return $.ajax(

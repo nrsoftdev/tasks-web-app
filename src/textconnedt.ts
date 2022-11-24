@@ -3,8 +3,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 
 import { AppWindow, getStringValue } from "./app";
 import * as connsvc  from './connsvc';
-import { createResponseToast } from './errormng';
 import { TextConnData } from './appdata';
+import { setErrorState } from './errormng';
 
 
 
@@ -48,7 +48,7 @@ $("#btnConfirm").on("click", function() {
             $(".form-control").removeClass("is-valid");
 
             if(xhr.responseJSON)
-                createResponseToast("#conn-", xhr.responseJSON?.responseDetails);
+                setErrorState("#conn-", xhr.responseJSON?.responseDetails);
 
             $(".form-control").not("is-invalid").addClass("is-valid");
 
@@ -114,8 +114,6 @@ function goBack() {
     setTimeout(
         function() { window.application.navigateTo("textconn.html");},
         1); 
-    }
-
-
+}
 
 

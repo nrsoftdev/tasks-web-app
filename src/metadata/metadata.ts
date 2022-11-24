@@ -5,6 +5,7 @@ export type MetadataInfo = {className:string, connectorType:string, name: string
 
 export type Metadata = { [className: string] : MetadataInfo};
 
+export type PropertyType = "BOOLEAN" | "CHOICE" | "DATE" | "NUMBER" | "LIST" | "MAP" | "STRING" | "TEXT";
 
 export type ClassMetadataProperty = {
     connector: boolean,
@@ -15,9 +16,11 @@ export type ClassMetadataProperty = {
     name: string,
     optional: boolean,
     pattern: string,
-    propertyType: string,
+    propertyType: PropertyType,
     choiceValues: string[]
 };
+
+
 
 export type ClassMetadata = { [propertyName: string] : ClassMetadataProperty;}
 

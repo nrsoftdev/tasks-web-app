@@ -9,6 +9,8 @@ import { TaskDefData } from '../appdata';
 
 declare let window : AppWindow;
 
+let classMetadata:ClassMetadata;
+
 $('#btnPrevious').on('click',
 function() {
     window.application.navigateTo('taskdefedt/basic.html');
@@ -22,9 +24,21 @@ function() {
 
     let properties: {[k: string]: string} = {};
 
+
+
     $(".task-prop").each(
         function (this: HTMLElement, index: number, element: HTMLElement) : false | void {
-            properties[ String($(element).data("prop-name")) ] = getStringValue($(element).val());
+
+            const propName = String($(element).data("prop-name"));
+            let value = getStringValue($(element).val());
+           
+            switch(classMetadata[propName].propertyType) {
+                case 'BOOLEAN':
+                    value = String($(element).prop('checked'));
+                    break;
+            } 
+
+            properties[ propName ] = value;
         }
     );
    
@@ -109,7 +123,9 @@ $(
         const className = taskDefData.className;
         getClassMetadata(window.application, className).then(
 
-            (classMetadata:ClassMetadata) => {
+            (_classMetadata:ClassMetadata) => {
+
+                classMetadata = _classMetadata;
 
                 for(let field of buildFormHtmlFromMetadata(classMetadata, taskDefData.connectorName)) {
                     $("#frmProperties").append(field);
@@ -118,7 +134,21 @@ $(
                 if(window.application.isFunctionEdit()) {
                    
                     for(const name in taskDefData.properties) {
-                        $(`[data-prop-name="${name}"]`).val(taskDefData.properties[name]);
+
+                        let value = taskDefData.properties[name];
+
+                        
+
+                        switch(classMetadata[name].propertyType) {
+                            case 'BOOLEAN':
+                                $(`[data-prop-name="${name}"]`).prop('checked', value=="true");
+                                break;
+                            default:
+                                $(`[data-prop-name="${name}"]`).val(value);
+                                break;
+                        } 
+
+                        
                     }
                 }
 

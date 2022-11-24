@@ -6,7 +6,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Application, AppWindow } from "./app";
 import * as textconnsvc  from './connsvc';
 import { TextConnData } from './appdata';
-import { createResponseToast } from './errormng';
+import { setErrorState } from './errormng';
+
 
 
 declare let window : AppWindow;
@@ -60,7 +61,7 @@ function loadList() {
                 ).then(
                     function(responseData) {
                         if(responseData) {
-                            createResponseToast(null, responseData.responseDetails )
+                            setErrorState("", responseData.responseDetails )
                         }
 
                     }

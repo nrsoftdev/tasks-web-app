@@ -22,9 +22,10 @@ function loadList() {
             for(let i=0;i<data.length;i++)
                 $("#procTbl").find('tbody').append(`<tr>`
                 + `<th scope="row">`
-                + `<a class="btn btn-primary start-edit" role="button" href='#' data-procid="${data[i].processId}/${data[i].version}"><i class="bi bi-pencil-square"></i></a>&nbsp;`
+                + `<a class="btn btn-primary start-edit" role="button" href='#' data-procdefid="${data[i].processId}/${data[i].version}"><i class="bi bi-pencil-square"></i></a>&nbsp;`
                 + `<a class="btn btn-primary" role="button" href='#' data-bs-toggle="modal" data-bs-target="#procDefMdl"  data-bs-entityId="DELETE:${data[i].processId}/${data[i].version}"><i class="bi bi-trash-fill"></i></a>&nbsp;`
-                + `<a class="btn btn-primary process-id" role="button" href='#' data-procdefid="${data[i].processId}/${data[i].version}"><i class="bi bi-play"></i></a>`
+                + `<a class="btn btn-primary process-id" role="button" href='#' data-procdefid="${data[i].processId}/${data[i].version}"><i class="bi bi-play"></i></a>&nbsp;`
+                + `<a class="btn btn-primary start-build" role="button" href='#' data-procdefid="${data[i].processId}/${data[i].version}"><i class="bi bi-code-square"></i></a>`
                 + "</th>"
                 + `<td>${data[i].name}</td><td>${data[i].description}</td><td>${data[i].taskDefinitionName?data[i].taskDefinitionName:""}</td><td>${data[i].taskDefinitionDescription?data[i].taskDefinitionDescription:""}</td>`
                 + "</tr>");
@@ -32,7 +33,7 @@ function loadList() {
             $(".process-id").on("click", run);
             $(".start-edit").on("click", 
                 function startEdit() {
-                    const procdefkey = $(this).data("procid").split("/");
+                    const procdefkey = $(this).data("procdefid").split("/");
                     procdefsvc.getProcessDef(window.application, procdefkey[0], procdefkey[1])
                     .then(
                         function(data) {
@@ -48,7 +49,15 @@ function loadList() {
                     )
 
 
-                });
+                }
+            );
+
+            $(".start-build").on("click", 
+                function startGenerate() {
+                    const procdefkey = $(this).data("procdefid").split("/");
+                    procdefsvc.generateProcess(window.application, procdefkey[0], procdefkey[1]);
+                }
+            );
 
 
         }

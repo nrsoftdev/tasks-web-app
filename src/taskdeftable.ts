@@ -120,7 +120,7 @@ export class TaskTable {
 
     $("#tblToolbar").after('<table class="table" id="taskTbl"><thead></thead><tbody></tbody></table>');
 
-    $("#taskTbl").after(this.buildNavigation());
+    $("#taskTbl").after(`<div id="navigationContainer">` + this.buildNavigation() + "</div>");
 
     this.selector = "#taskTbl";
 
@@ -196,8 +196,7 @@ export class TaskTable {
       '</a>'+
     '</li>'+
   '</ul>'+
-'</nav>'+
-'</div>';
+'</nav>';
   }
 
 
@@ -329,7 +328,7 @@ export class TaskTable {
       if(!this.options.actions) {
         row += `<input class="form-check-input" type="radio" name="taskSelect" value="${data[i].taskId}">`;
       } else {
-        row += `<a class="btn btn-primary start-edit" role="button" href='#' data-taskId="${data[i].taskId}"><i class="bi bi-pencil-square"></i></a>&nbsp;`;
+        row += `<a class="btn btn-primary btn-sm start-edit" role="button" href='#' data-taskId="${data[i].taskId}"><i class="bi bi-pencil-square"></i></a>&nbsp;`;
         let addDeleteBtn = true;
         let btnClass = "btn-primary";
         if(this.currentTaskId.length>0)
@@ -338,7 +337,7 @@ export class TaskTable {
           addDeleteBtn = data[i].children==0;
         }
         if(addDeleteBtn)
-          row += `<a class="btn ${btnClass} start-delete" role="button" href='#' data-taskId="${data[i].taskId}"><i class="bi bi-trash-fill"></i></a>`;
+          row += `<a class="btn ${btnClass} btn-sm start-delete" role="button" href='#' data-taskId="${data[i].taskId}"><i class="bi bi-trash-fill"></i></a>`;
 
       }
       row += "</th>"
@@ -365,6 +364,8 @@ export class TaskTable {
   private loadChildrenList(event: JQuery.ClickEvent) {
     const me=this;
     this.empty();
+    $("#navigationContainer").empty();
+    $("#navigationContainer").html(this.buildNavigation());
     const taskId = String($(event.currentTarget).data("taskid"));
 
     this.navigationTrace.push({taskId:this.currentTaskId, pageNum:this.currentPageNum});
@@ -386,16 +387,19 @@ export class TaskTable {
     const navigation = this.navigationTrace.pop();
     if(navigation==undefined) return;
     this.empty();
+    $("#navigationContainer").empty();
+    $("#navigationContainer").html(this.buildNavigation());
+    // Root, torno alla gestione normale
     if(navigation.taskId.length===0) {
       this.currentTaskId = "";
       this.currentPageNum =navigation.pageNum;
+      //this.setCurrentPageNum()
       $("#searchBtn").hide();
       getTaskDefList(this.appData, this.currentPageNum, this.paginationOptions.pageSize )
       .then(
         function(data:any) {
           me.data(data);
         });
-
     } else {
 
       const taskId = navigation.taskId;
@@ -446,16 +450,18 @@ export class TaskTable {
       if( this.listData.length>0 ) {
         
         this.currentPageNum = nextPageNum;
-          this.currentPages++;
-          const last = $(".page-item-last");
-          const node = $(`<li id="page-item-${this.currentPageNum}" class="page-item active page-item-last"><a class="page-link page-link-num" href="#" data-pageNum="${this.currentPageNum}">${this.currentPageNum}</a></li>`); 
-          $(".page-item-last").after(node);
-          last.removeClass("page-item-last");
-          last.removeClass("active");
-    
-          node.children(".page-link-num").on("click", this.setCurrentPageNum.bind(this) );
-          this.empty();
-          this.data(this.listData);  
+        this.currentPages++;
+
+        const last = $(".page-item-last");
+        const node = $(`<li id="page-item-${this.currentPageNum}" class="page-item active page-item-last"><a class="page-link page-link-num" href="#" data-pageNum="${this.currentPageNum}">${this.currentPageNum}</a></li>`); 
+        $(".page-item-last").after(node);
+        last.removeClass("page-item-last");
+        last.removeClass("active");
+  
+        node.children(".page-link-num").on("click", this.setCurrentPageNum.bind(this) );
+        
+        this.empty();
+        this.data(this.listData);  
       }
     }
   }  

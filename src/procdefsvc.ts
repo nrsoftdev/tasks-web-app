@@ -45,7 +45,7 @@ export function changeProcessDef(appData: Application, processId: any, version: 
 
 export function runProcess(appData: Application, processId: any, version: any) : JQuery.jqXHR {
 
-    let url = appData.config.urlSvc + '/procdef/run/' + processId + "/" + version + "?user=" + appData.currentUser;
+    let url = appData.config.urlSvc + '/process/run/' + processId + "/" + version + "?user=" + appData.currentUser;
     return $.ajax(
         url,
         {
@@ -61,4 +61,15 @@ export function getVariables(appData: Application, processId: any, version: any)
         url
     );
 
+}
+
+export function generateProcess(application: Application, processId: any, version: any) {
+    let url = application.config.urlSvc + '/procdef/generate/' + processId + "/" + version + "?user=" + application.currentUser;
+    return $.ajax(
+        url,
+        {
+    
+        'method': 'GET'
+        }
+    );
 }

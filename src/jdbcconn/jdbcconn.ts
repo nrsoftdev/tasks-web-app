@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Application, AppWindow } from "../app";
 import * as connsvc  from '../connsvc';
 import { JdbcConnData } from '../appdata';
+import { setErrorState } from '../errormng';
 
 /*
 [
@@ -42,7 +43,8 @@ function loadList() {
             for(let i=0;i<data.length;i++)
                 $("#jdbcConnTbl").find('tbody').append(`<tr><th scope="row">`
                 + `<a class="btn btn-primary start-edit" role="button" href='#'  data-connid="${data[i].connId}"><i class="bi bi-pencil-square"></i></a>&nbsp;`
-                + `<a class="btn btn-primary start-delete" role="button" href='#' data-connid="${data[i].connId}"><i class="bi bi-trash-fill"></i></a>`
+                + `<a class="btn btn-primary start-delete" role="button" href='#' data-connid="${data[i].connId}"><i class="bi bi-trash-fill"></i></a>&nbsp;`
+                + `<a class="btn btn-primary start-check" role="button" href='#' data-connid="${data[i].connId}"><i class="bi bi-file-check"></i></a>`
                 + `</th><td>${data[i].name}</td><td>${data[i].description?data[i].description:""}</td>`
                 + `<td>${data[i].driver?data[i].driver:""}</td>`
                 + `<td>${data[i].url?data[i].url:""}</td>`
@@ -70,6 +72,26 @@ function loadList() {
                     function() { window.application.navigateTo("jdbcconnedt.html");},
                     1);
             });
+
+            $(".start-check").on("click", 
+            function startCheck(): void {
+                const connId = $(this).data("connid");
+                const data : JdbcConnData = application.getApplicationData() as JdbcConnData;
+                connsvc.getJdbcConn(application, connId)
+                .then(
+                    function(data) {
+                        return connsvc.checkJdbcConn(application, data);
+                    }
+                ).then(
+                    function(responseData) {
+                        if(responseData) {
+                            setErrorState("", responseData.responseDetails )
+                        }
+
+                    }
+                );
+                
+            });            
 
         }
     );
