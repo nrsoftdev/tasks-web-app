@@ -8,8 +8,8 @@ export function getTextConn(appData: Application, connId: string) : JQuery.jqXHR
     return getConn('text', appData, connId)
 }   
 
-export function getTextConnList(appData: Application) : JQuery.jqXHR {
-    return getConnList('text', appData);
+export function getTextConnList(appData: Application) : JQuery.Promise<TextConnData[]> {
+    return getConnList('text', appData).then( dataToTextConnData ); 
 }
 
 export function deleteTextConn(appData: Application, data: TextConnData): JQuery.jqXHR {
@@ -43,8 +43,8 @@ export function getJdbcConn(appData: Application, connId: string) : JQuery.jqXHR
     return getConn('jdbc', appData, connId);
 }   
 
-export function getJdbcConnList(appData: Application) : JQuery.jqXHR {
-    return getConnList('jdbc', appData);
+export function getJdbcConnList(appData: Application) : JQuery.Promise<JdbcConnData[]> {
+    return getConnList('jdbc', appData).then( dataToJdbcConnData ); 
 }
 
 export function deleteJdbcConn(appData: Application, data: JdbcConnData): JQuery.jqXHR {
@@ -57,7 +57,21 @@ export function changeJdbcConn(appData: Application, data: JdbcConnData): JQuery
     return $.ajax(url, {'method': 'POST', 'data': data.asObject()});
 }
 
+function dataToJdbcConnData(data:any): JdbcConnData[] { 
 
+    let list: JdbcConnData[] = [];
+    for(let i=0;i<data.length;i++)
+        list.push(new JdbcConnData(data[i]));    
+    return list;
+} 
+
+function dataToTextConnData(data:any): TextConnData[] { 
+
+    let list: TextConnData[] = [];
+    for(let i=0;i<data.length;i++)
+        list.push(new TextConnData(data[i]));    
+    return list;
+}
 
 
 

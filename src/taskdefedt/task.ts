@@ -3,17 +3,20 @@
 import { AppWindow, getStringValue } from '../app';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { TaskTable, TaskTableOptions, TaskTablePaginationOptions } from '../taskdeftable';
-import { getMetadata } from '../metadata/metadata';
-import { attachChildrenTask, getTaskDef, saveChildrenTask } from '../taskdefsvc';
-import { TaskDefData } from '../appdata';
+import { TaskTable } from '../taskdeftable';
+import { Metadata } from '../metadata/metadata';
+import { attachChildrenTask } from '../taskdefsvc';
+import { ResponseDetail, TaskDefData } from '../appdata';
+import { HtmlTableOptions, HtmlTablePaginationOptions } from '../htmltable';
+import { showResponseToastMessage, showResponseToasts } from '../errormng';
+import { decodeError } from '../resources/errormsg';
 
 declare let window : AppWindow;
 
 
 let classNameList = []
 
-function saveMetadata(data:any):void {
+function saveMetadata(data:Metadata):void {
 
     $('#select-class').empty();
     $('#select-class').append("<option selected value=''>Class Name</option>");
@@ -30,12 +33,17 @@ function saveMetadata(data:any):void {
 }
 
 function OnStartFinish(event: JQuery.ClickEvent) {
-    console.log(event);
-    window.application.currentChildId = taskTable.getCurrentSelectedTaskId();
-    
-    attachChildrenTask(window.application);
+    window.application.currentChildId = taskTable.getCurrentSelectedId(); 
+    attachChildrenTask(window.application)
+    .then((result:ResponseDetail)=> {
+        if(result) {
+            showResponseToasts([result]);
+        } else {
+            showResponseToastMessage(decodeError("GEN00001"), "INFO");
+            window.application.navigateTo('taskdef.html');
+        }
+    });
 }
-
 
 let taskTable: TaskTable;
 
@@ -43,8 +51,8 @@ $(
     function() {
 
 
-        let paginationOptions : TaskTablePaginationOptions = { pageSize:10, nextPageId: "nextPage", previousPageId: "previousPage" };
-        let options: TaskTableOptions = { actions: false, filters: true  };
+        let paginationOptions : HtmlTablePaginationOptions = { pageSize:10, nextPageId: "nextPage", previousPageId: "previousPage" };
+        let options: HtmlTableOptions = { actions: false, selection: true, filters: true  };
         taskTable = new TaskTable('#taskTableContainer', window.application, options, paginationOptions);
         taskTable.setOnStartConfirm(OnStartFinish);
         taskTable.setOnStartCancel(OnStartFinish);
@@ -53,7 +61,7 @@ $(
     
         taskTable.loadList();
 
-        getMetadata(window.application).then(saveMetadata);
+        saveMetadata(window.application.metadata);
     
     }
 );

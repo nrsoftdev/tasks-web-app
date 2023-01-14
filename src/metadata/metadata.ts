@@ -2,7 +2,6 @@ import { Application } from "../app";
 
 export type MetadataInfo = {className:string, connectorType:string, name: string, description: string, allowsChildren:boolean};
 
-
 export type Metadata = { [className: string] : MetadataInfo};
 
 export type PropertyType = "BOOLEAN" | "CHOICE" | "DATE" | "NUMBER" | "LIST" | "MAP" | "STRING" | "TEXT";
@@ -20,12 +19,7 @@ export type ClassMetadataProperty = {
     choiceValues: string[]
 };
 
-
-
 export type ClassMetadata = { [propertyName: string] : ClassMetadataProperty;}
-
-
-
 
 export async function  getMetadata(appData : Application): Promise<Metadata> {
 
@@ -33,7 +27,8 @@ export async function  getMetadata(appData : Application): Promise<Metadata> {
         appData.config.urlSvc + "/md"
     ).then(
         function(data) {
-            return extracMetadata(data);
+            appData.metadata = extracMetadata(data);
+            return appData.metadata;
         }
     );
 }

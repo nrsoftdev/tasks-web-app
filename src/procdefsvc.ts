@@ -1,5 +1,5 @@
 import { Application } from "./app";
-import { ProcessDefData } from "./appdata";
+import { ProcessData, ProcessDefData } from "./appdata";
 
 export function getProcessDef(appData: Application, processId: string, version: string) 
 : JQuery.Promise<ProcessDefData> 
@@ -11,7 +11,7 @@ export function getProcessDef(appData: Application, processId: string, version: 
     } );   
 }
 
-export function getProcessList(appData: Application) 
+export function getProcessDefList(appData: Application) 
 : JQuery.jqXHR
 {
 
@@ -19,6 +19,24 @@ export function getProcessList(appData: Application)
     return $.get(
         url
     );
+}
+
+function dataToProcessData(data:any): ProcessData[] { 
+
+    let list: ProcessData[] = [];
+    for(let i=0;i<data.length;i++)
+        list.push(new ProcessData(data[i]));    
+    return list;
+}
+
+
+export function getProcessList(appData: Application, pageNum: number, pageSize: number) : JQuery.Promise<ProcessData[]> 
+{
+
+    let url = appData.config.urlSvc + '/process?pageNum=' + pageNum + '&pageSize=' + pageSize;
+    return $.get(
+        url
+    ).then(dataToProcessData);
 }
 
 export function deleteProcessDef(appData: Application, processId: any, version: any)

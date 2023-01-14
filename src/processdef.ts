@@ -12,7 +12,7 @@ function loadList() {
 
     $("#procTbl").find('tbody').empty();
 
-    procdefsvc.getProcessList(window.application)
+    procdefsvc.getProcessDefList(window.application)
     .then(
 
         /* data-bs-toggle="modal" data-bs-target="#procDefMdl"  data-bs-entityId="EDIT:${data[i].processId}/${data[i].version}" */

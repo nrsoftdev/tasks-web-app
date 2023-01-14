@@ -1,4 +1,4 @@
-import { CommonData } from "./appdata";
+import { CommonDefData } from "./appdata";
 import { Metadata } from "./metadata/metadata";
 
 enum Function {
@@ -29,7 +29,7 @@ class Application {
 
     public currentUser: string="";
 
-    private data:CommonData | null = null;
+    private data:CommonDefData | null = null;
 
     constructor() {
         this.config.urlSvc = 'http://localhost:9000/tasks-svc/rest';
@@ -91,11 +91,11 @@ class Application {
         this.currentFunction = Function.NONE;
     }
 
-    public getApplicationData(): CommonData | null  {
+    public getApplicationData(): CommonDefData | null  {
         return this.data;
     }
 
-    public setApplicationData(data: CommonData) {
+    public setApplicationData(data: CommonDefData) {
         this.data = data;
     }
 

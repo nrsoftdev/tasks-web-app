@@ -1,23 +1,29 @@
 import { Toast } from 'bootstrap';
+import { ResponseDetail, ResponseKind } from './appdata';
 import { decodeError } from './resources/errormsg';
 
-type ResponseKind = "ERROR" | "WARNING" | "INFO";
 
 
-export type ResponseDetail = {
-	resource : string;
-	responseKind: ResponseKind;
-	field: string;
-	code: string;
-	message: string;
+export function showResponseToasts(responseDetails:[ResponseDetail]) {
+
+    createToasts(createResponseToasts(responseDetails));
+}
+
+
+export function showResponseToastMessage(message:string, responseKind: ResponseKind) {
+
+    createToasts([createResponseToast(1, message, "", responseKind)]);
 }
 
 function createToasts(toastsHtml: string[]) {
     toastsHtml.forEach((toastHtml:string, toastId: number) => {
         $( ".toast-container" ).append( $( toastHtml ));
         var toast = new Toast("#toast" + (toastId+1));
-        toast.show();    
-    
+        toast.show();
+
+        $("#toast" + (toastId+1)).on('hidden.bs.toast', function () {
+            $("#toast" + (toastId+1)).remove();
+          })
     }
     );
 }
@@ -121,13 +127,3 @@ function createResponseToasts(responseDetails:[ResponseDetail]): string[] {
 }
 
 
-export function showResponseToasts(responseDetails:[ResponseDetail]) {
-
-    createToasts(createResponseToasts(responseDetails));
-}
-
-
-export function showResponseToast(message:string, responseKind: ResponseKind) {
-
-    createToasts([createResponseToast(1, message, "", responseKind)]);
-}

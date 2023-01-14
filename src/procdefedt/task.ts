@@ -3,9 +3,10 @@
 import { AppWindow, getStringValue } from '../app';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { TaskTable, TaskTableOptions, TaskTablePaginationOptions } from '../taskdeftable';
-import { getMetadata } from '../metadata/metadata';
+import { TaskTable } from '../taskdeftable';
+import { Metadata } from '../metadata/metadata';
 import { ProcessDefData } from '../appdata';
+import { HtmlTableOptions, HtmlTablePaginationOptions } from '../htmltable';
 
 declare let window : AppWindow;
 
@@ -26,13 +27,9 @@ $('#btnNext').on('click',
 
 
 $('#taskTbl').on('change', 'select', function (e) {
-    let name : string = String($("#select-name").val());
-    let desc : string = String($("#select-desc").val())
 
-    if(name!=="") name = "%" + name + "%";
-    if(desc!=="") desc = "%" + desc + "%";
 
-    taskTable.loadListSearch( name , desc, getStringValue($("#select-class").val()));
+    //taskTable.loadListSearch( taskTable.getColumnFilters());
 });
 
 
@@ -41,7 +38,7 @@ $('#taskTbl').on('change', 'select', function (e) {
 
 let classNameList = []
 
-function saveMetadata(data:any):void {
+function saveMetadata(data:Metadata):void {
 
     $('#select-class').empty();
     $('#select-class').append("<option selected value=''>Class Name</option>");
@@ -69,15 +66,17 @@ $(
             $("#proc-taskDesc").text(processDefData.taskDefinitionDescription);
         }
 
-        let paginationOptions : TaskTablePaginationOptions = { pageSize:10, nextPageId: "nextPage", previousPageId: "previousPage" };
-        let options: TaskTableOptions = { actions: false, filters: true  };
+        saveMetadata(window.application.metadata);
+
+        let paginationOptions : HtmlTablePaginationOptions = { pageSize:10, nextPageId: "nextPage", previousPageId: "previousPage" };
+        let options: HtmlTableOptions = { actions: false, selection:true, filters: true  };
         taskTable = new TaskTable('#taskTableDiv', window.application, options, paginationOptions);
     
         taskTable.createTable();
     
         taskTable.loadList();
 
-        getMetadata(window.application).then(saveMetadata);
+        
     
     }
 );

@@ -1,10 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import { AppWindow, getStringValue } from "./app";
-import * as connsvc  from './connsvc';
-import { TextConnData } from './appdata';
-import { setErrorState } from './errormng';
+import { AppWindow, getStringValue } from "../app";
+import * as connsvc  from '../connsvc';
+import { TextConnData } from '../appdata';
+import { setErrorState } from '../errormng';
 
 
 

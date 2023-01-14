@@ -7,8 +7,8 @@ module.exports = {
      loginPage: './src/login.ts',
      indexPage: './src/index.ts',
      homePage: './src/home.ts',
-     textConnPage: './src/textconn.ts',
-     textConnEdtPage: './src/textconnedt.ts',
+     textConnPage: './src/textconn/textconn.ts',
+     textConnEdtPage: './src/textconn/textconnedt.ts',
      jdbcConnEdtPage: './src/jdbcconn/jdbcconnedt.ts',
      jdbcConnPage: './src/jdbcconn/jdbcconn.ts',
 

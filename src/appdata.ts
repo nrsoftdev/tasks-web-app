@@ -1,4 +1,12 @@
 export abstract class CommonData {
+
+    public abstract getId() : string;
+
+
+    public constructor(data?:any) { }
+}
+
+export abstract class CommonDefData extends CommonData {
     public name: string="";
     public description : string="";
     public user: string="";
@@ -6,6 +14,7 @@ export abstract class CommonData {
 
 
     public constructor(data?:any) {  
+        super(data);
         if(data) {
             this.name = data.name?data.name:"";
             this.description = data.description?data.description:"";
@@ -14,6 +23,10 @@ export abstract class CommonData {
         }
     }
 
+    public allowsChildren(): boolean { return false };
+    
+    public children(): number { return 0 };    
+
     public  asObject(): any {
         return { 'name' : this.name
         , 'description' : this.description
@@ -21,10 +34,14 @@ export abstract class CommonData {
         , 'properties' : JSON.stringify(this.properties) 
         }  
     }
+
+    public getDescription() : string {
+        return this.description;
+    }    
 }
 
 
-export class JdbcConnData  extends CommonData  {
+export class JdbcConnData  extends CommonDefData  {
 
     public connId: string="";
     public driver: string="";
@@ -43,6 +60,9 @@ export class JdbcConnData  extends CommonData  {
         }
      }
 
+     public getId(): string {
+        return this.connId;
+     }
 
      public  asObject(): any {
 
@@ -58,7 +78,7 @@ export class JdbcConnData  extends CommonData  {
 
 }
 
-export class TextConnData  extends CommonData  {
+export class TextConnData  extends CommonDefData  {
 
     public connId: string="";
     public filename: string="";
@@ -70,10 +90,13 @@ export class TextConnData  extends CommonData  {
             this.connId = data.connId;
         }
      }
+     public getId(): string {
+        return this.connId;
+     }     
  
 }
 
-export class ProcessDefData extends CommonData {
+export class ProcessDefData extends CommonDefData {
     public processId: string="";
     public version: string="";
 
@@ -95,6 +118,9 @@ export class ProcessDefData extends CommonData {
             this.taskDefinitionName = data.taskDefinitionName?data.taskDefinitionName:"";
         } 
     }
+    public getId(): string {
+        return this.processId;
+     }
 
     public  asObject(): any {
 
@@ -106,15 +132,15 @@ export class ProcessDefData extends CommonData {
     } 
 }
 
-export class TaskDefData extends CommonData  { 
+export class TaskDefData extends CommonDefData  { 
 
     public taskId: string="";
     public parentTaskId: string="";
     public className: string="";
     public connectorName: string="";
 
-    public readonly allowsChildren: boolean = false;
-    public readonly children : number = 0;
+    private _allowsChildren: boolean = false;
+    private _children : number = 0;
 
 
     public constructor(data?:any) { 
@@ -124,10 +150,17 @@ export class TaskDefData extends CommonData  {
             this.parentTaskId = data.parentTaskId?data.parentTaskId:"";
             this.className = data.className?data.className:"";
             this.connectorName = data.connectorName?data.connectorName:"";
-            this.allowsChildren = data.allowsChildren?data.allowsChildren:false;
-            this.children = data.children?data.children:0;
+            this._allowsChildren = data.allowsChildren?data.allowsChildren:false;
+            this._children = data.children?data.children:0;
         } 
     }
+
+    public getId(): string {
+        return this.taskId;
+     } 
+     
+     public allowsChildren(): boolean { return this._allowsChildren };
+     public children(): number { return this._children };     
 
     public  asObject(): any {
 
@@ -141,3 +174,64 @@ export class TaskDefData extends CommonData  {
 
 
 };
+
+export class ProcessData extends CommonData {
+
+	private processId: string="";
+	public status: string="";
+	public startTime: string="";
+	public endTime: string="";
+	public owner: string="";
+	public processDefId: string="";
+	public processDefVersion: string="";
+	public resultMessage: string="";
+
+    public constructor(data?:any) { 
+        super(data);
+        if(data) {
+            this.processId = data.processId;
+            this.status = data.status;
+            this.startTime = data.startTime;
+            this.endTime = data.endTime;
+            this.owner = data.owner;
+            this.resultMessage = data.resultMessage;
+        }
+     }
+
+    public getId(): string {
+        return this.processId;
+    }
+
+    public getStatusDescription(): string {
+        let description = "";
+        switch(this.status) {
+            case "10":  
+                description = "CREATED";
+                break;
+	        case "20":  
+                description = "RUNNING";
+                break;
+	        case "30":  
+                description = "ENDED_OK";
+                break;
+	        case "40":  
+                description = "ENDED_ERROR";
+                break;
+	        case  "90":  
+                description = "CLOSED";
+                break;
+        }
+        return description;
+    }
+}
+
+export type ResponseKind = "ERROR" | "WARNING" | "INFO";
+
+
+export type ResponseDetail = {
+	resource : string;
+	responseKind: ResponseKind;
+	field: string;
+	code: string;
+	message: string;
+}
